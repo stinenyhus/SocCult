@@ -55,21 +55,23 @@ plot(moore)
 
 #Making Moore lattice with rewiring
 moore_re <- make_lattice(c(sqrt(n),sqrt(n)), nei =2) %>% rewire(each_edge(p = .005)) %>% asNetwork(.)
+moore_re
 plot(moore_re)
 
 #Random degree - how???? 
 
 plot(sw.net)
 
-rnorm(50, 2,1)
-pois <- rpois(4800000, 2.3)
-summary(pois)
+#Maybe making network with power law neighbors???
+degs <- sample(1:50, 50, replace=TRUE, prob=(1:50)^-2.3)
+g5 <- sample_degseq(degs, method="vl")
+g5 <- g5 %>% rewire(each_edge(p = 10^-2)) %>% asNetwork(.)
 
-
+plot(g5)
 
 ### Step 2: Choose a person & neighbors at random as an initial adopter ###
 # Set up vector to indicate adoption
-adopters <- rep(F, n)
+adopters <- rep(F, 50)
 adopters
 
 # Choose a person at random
@@ -79,7 +81,7 @@ initial.adopter <- sample(seq_len(n), size = 1)
 initial.neighbors <- get.neighborhood(sw.net, initial.adopter)
 initial.neighbors
 
-initial.neighbors <- get.neighborhood(moore_re, initial.adopter)
+initial.neighbors <- get.neighborhood(g5, initial.adopter)
 initial.neighbors
 
 # Set them all as "adopters"
@@ -107,6 +109,10 @@ adj.mat <- sw.net[, ]
 diag(adj.mat) <- 0  # set the diagonal to 0, b/c people don't weight themselves
 
 adj.mat <- moore_re[, ]
+diag(adj.mat) <- 0 
+
+adj.mat <- g5[, ]
+adj.mat
 diag(adj.mat) <- 0 
 
 # We could take the sum...
@@ -143,19 +149,19 @@ data.frame(
   geom_line()
 
 set.seed(330)
-sw.net.layout <- ggnetwork(sw.net) %>% 
+g5.net.layout <- ggnetwork(g5) %>% 
   rename(id = vertex.names)
 
-sw.net.layout.by.time <- adopt %>%
+g5.net.layout.by.time <- adopt %>%
   lapply(FUN = as.data.frame) %>% 
   lapply(FUN = set_names, value = "adopter") %>% 
-  lapply(FUN = mutate, id = 1:n) %>%
+  lapply(FUN = mutate, id = 1:50) %>%
   lapply(FUN = right_join, y = sw.net.layout, by = "id") %>% 
   bind_rows(.id = "t") %>% 
   mutate(t = as.integer(t))
 
-sw.net.layout.by.time %>% 
-  filter(t > 14 & t < 24) %>% 
+g5.net.layout.by.time %>% 
+  filter(t > 30 & t < 40) %>% 
   ggplot(aes(xend = xend, yend = yend, x = x, y = y)) + 
   geom_edges(color = "lightgray") +
   geom_nodes(aes(color = adopter)) + 
