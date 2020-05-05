@@ -260,7 +260,9 @@ ifelse(adopters, TRUE, ((adj.mat.rn %*% adopters) >= tau)) # i adopters hvis den
 ```{r}
 ### Step 4: Repeat ###
 # Again, we can take care of this by wrapping it in a loop
-adopt <- vector(mode = "list", length = max.time)
+#
+adopt <- vector(mode = "list", length = max.time) 
+
 adopt[[1]] <- adopters
 
 #sw net - basic
