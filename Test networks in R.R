@@ -40,32 +40,58 @@ tau <- 2 / 6
 max.time <- 50
 sqrt(n)
 
+
 library(pacman)
-p_load(intergraph, igraph)
+p_load(intergraph, igraph, ggnetwork )
 
 # Construct a small world network
 set.seed(919)
-sw.net <- igraph::watts.strogatz.game(1,n, 2, p = 0) %>%
+sw.net <- igraph::watts.strogatz.game(1, 50, 2, p = 0.005) %>%
   intergraph::asNetwork(.) 
 plot(sw.net)
 
+igraph::degree.distribution()
+
+directed <- igraph::as.directed(sw.net)
+directed <- asNetwork(directed)
+plot(directed)
+triads <- triad.census(directed)
+triads
+is_weighted(directed)
+
+adj.mat <- sw.net[, ]
+diag(adj.mat) <- 0
+weight <- graph_from_adjacency_matrix(adj.mat, mode = "undirected", weighted = TRUE, diag = FALSE)
+weight <- asNetwork(weight)
+weight$mel[[100]]$atl$weight
+
+plot(weight)
+
 #Making Moore lattice without rewiring
-moore <- make_lattice(c(sqrt(n),sqrt(n)), nei =2) %>% asNetwork(.)
+moore <- make_lattice(c(100,100), nei =2) %>% asNetwork(.)
 plot(moore)
+moorenat <- moore[,]
 
 #Making Moore lattice with rewiring
 moore_re <- make_lattice(c(sqrt(n),sqrt(n)), nei =2) %>% rewire(each_edge(p = .005)) %>% asNetwork(.)
 moore_re
 plot(moore_re)
 
+sqrt(10000)
+490^2
+sqrt(50)
+7*7
+
 #Random degree - how???? 
 
 plot(sw.net)
 
 #Maybe making network with power law neighbors???
-degs <- sample(1:50, 50, replace=TRUE, prob=(1:50)^-2.3)
-g5 <- sample_degseq(degs, method="vl")
-g5 <- g5 %>% rewire(each_edge(p = 10^-2)) %>% asNetwork(.)
+degs <- sample(1:50, 50, replace=TRUE, prob=(1:50)^-1.5)
+if (sum(degs) %% 2 != 0 ) {degs[1] <- degs[1] + 1}
+g5 <- sample_degseq(degs, method="vl") #%>% asNetwork(.)
+all(degree(g5) == degs)
+g5 <- g5 %>% rewire(each_edge(p = 0)) %>% asNetwork(.)
 
 plot(g5)
 
@@ -81,8 +107,6 @@ initial.adopter <- sample(seq_len(n), size = 1)
 initial.neighbors <- get.neighborhood(sw.net, initial.adopter)
 initial.neighbors
 
-initial.neighbors <- get.neighborhood(g5, initial.adopter)
-initial.neighbors
 
 # Set them all as "adopters"
 adopters[c(initial.adopter, initial.neighbors)] <- T
@@ -90,19 +114,6 @@ adopters
 
 ### Step 3: infect all people who have more than tau neighbors infected ###
 
-# Let's look at one person (20) #This gives us which of 20's neighbors are connected to each other
-ego.extract(sw.net, ego = 20, neighborhood = "out") 
-
-# Person 18 hasn't adopted
-adopters[20]
-
-# About half of their neighbors have adopted
-adopters[c(18, 19, 22, 21)]
-mean(adopters[c(18, 19, 22, 25)])
-
-# To decide whether the person adopts, we test whether the fraction of
-# adopters is greater than tau
-mean(adopters[c(18, 19, 22, 25)]) >= tau  # adoption!
 
 # We can update everyone simultaneously using matrix multiplication
 adj.mat <- sw.net[, ]
@@ -120,7 +131,12 @@ adj.mat %*% adopters
 
 #... or the percentage
 (adj.mat.rn <- adj.mat / rowSums(adj.mat))
-adj.mat.rn %*% adopters
+246/99/4
+0.25-0.0062
+0.62*4*99 + 4
+
+p <- adj.mat.rn %*% adopters
+p
 
 # And then we calculate the people who are above our threshold
 (adj.mat.rn %*% adopters) >= tau
@@ -134,11 +150,27 @@ ifelse(adopters, TRUE, ((adj.mat.rn %*% adopters) >= tau))
 # Again, we can take care of this by wrapping it in a loop
 adopt <- vector(mode = "list", length = max.time)
 adopt[[1]] <- adopters
-adopt
+adopt[[1]]
 
 for (t in 2:max.time) {
   adopt[[t]] <- ifelse(adopters, TRUE, ((adj.mat.rn %*% adopt[[t - 1]]) >= tau))
 }
+id = 1:n
+id
+
+#Stochastic threshold 
+p <- 5/10
+M <- 10
+L = 1/(1+exp((.5-p)*M))
+L
+activation <- rbinom(1,1,prob = L)
+if activation == 1 then TRUE, else FALSE
+
+
+if stochastic == TRUE 
+elif stochastic == FALSE 
+ifelse(adopters, TRUE, ((adj.mat.rn %*% adopt[[t - 1]]) >= tau))
+
 
 # Note that again we get the characteristic S-shaped curve:
 data.frame(
@@ -168,3 +200,18 @@ g5.net.layout.by.time %>%
   facet_wrap(~ t) + 
   theme_blank()
 
+p_load(boot)
+
+#Stochastic threshold 
+p <- 5/10
+M <- 10
+L = 1/(1+exp((.5-p)*M))
+L
+
+rbinom(1,1,prob = L)
+
+
+#Sample from binomial like this?
+sample(c(0,1), 1, prob = prob)
+#Or like this
+rbinom(1,1, prob = prob)

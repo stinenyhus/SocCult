@@ -15,13 +15,13 @@ pacman::p_load(tidyverse,
                network,
                igraph,
                ggraph,
-               tidygraph,
+               #tidygraph,
                intergraph,
-               patchwork,
-               statnet,
-               magrittr,
+              # patchwork,
+              # statnet,
+               #magrittr,
                ggnetwork,
-               EpiModel,
+               #EpiModel,
                #netdiffuseR
                )
 ```
@@ -35,10 +35,21 @@ generate_moore <- function(n, p, nei){
    asNetwork(.) 
  return(moore)
 }
-mtest <- generate_moore(n = 20000, p = 10^-2, nei = 2)
+mtest <- generate_moore(n = 100, p = 0, nei = 2)
+plot(mtest)
+get.neighborhood(mtest)
+
+mtest <- make_lattice(c(10,10), nei = 2)
+degrees <- degree(mtest)
+mean(degrees)
+
+
+
 moore <- make_lattice(c(600, 400), nei =2) %>% rewire(each_edge(p = 10^-2)) 
 moore <- moore %>% asNetwork(.) 
 moore_adj <- moore[, ]
+
+sqrt(40000)
 
 generate_scalefree <- function(n, degrees, gamma, p = 0){
   degs <- sample(1:degrees, n, replace=TRUE, prob=(1:degrees)^-gamma)
@@ -56,7 +67,7 @@ generate_scalefree(20000, 150, 2.3, p=10^-4)
 Setting initial adopters
 ```{r}
 moore <- generate_moore(100, 0.01, 2)
-max.time <- 5
+max.time <- 8
 tau <- 2/6
 n <- 100
 
@@ -104,7 +115,7 @@ adopt_dat <- rbind(df_1, adopt_dat)
 
 ```
 ```{r}
-contagion_sim <- function(condition = "base_tau", high_status = F, rep, net_type = "moore", rounds, tau = 0, n, nei, p = 0, n_high, degrees = 0, gamma = 0){ #assumption network
+contagion_sim <- function(condition = "base_tau", high_status = F, rep, net_type = "moore", rounds, tau = 0, n, nei, p = 0, n_high, degrees = 0, gamma = 0, stochastic = F){ #assumption network
   ##HVOR SKA if(high_status == T) VÆRE??
   for (i in 1:rep){
 #generate network
@@ -130,10 +141,14 @@ adj <- network[, ]
 diag(adj) <- 0 
 (nei_activated_perc <- adj / rowSums(adj))
 
+if (high_status == T){
+  #Update adjacency matrix and then move on
+}
+
 adopt <- vector(mode = "list", length = rounds) 
 adopt[[1]] <- adopters
 
-if(condition == "base_tau"){
+if(condition == "base_tau" & stochastic == F){
 #preparing tau list
 tau_vec <- as.vector(rep(tau, nrow(adj)))
 for (t in 2:rounds) {
@@ -168,10 +183,8 @@ if (t == 2) {
   }
 }
 
-if(condition == "random_tau"){
-  #INDSÆT random tau  
-  #HVAD ER VÆRDIERNE??
-   tau_norm <- rnorm(nrow(adj),0.3333333,  0.1666666) #ÆNDR VÆRDIER HER 
+if(condition == "random_tau" & stochastic == F){ 
+   tau_norm <- rnorm(nrow(adj),tau, tau/3)
    tau_vec_random <- as.vector(sample(tau_norm))
    for (t in 2:rounds) {
 adopt[[t]] <- ifelse(adopters, TRUE, ((nei_activated_perc %*% adopt[[t - 1]]) >= tau_vec_random)) 
@@ -204,9 +217,29 @@ if (t == 2) {
   }
   }
 
-if(condition == "stochastic"){
-  #INDSÆT STOCHASTIC  
+if(stochastic == T){
+  if (condition == "base_tau"){
+    tau_vec = as.vector(rep(tau, nrow(adj)))
   }
+  else if (condition == "random_tau"){
+    tau_vec = rnorm(nrow(adj),tau, tau/3) #Some taus are negative which is not good! 
+    #They should only be pos so therefore sd = tau/3
+  }
+   for (t in 2:rounds){
+    list <- adopt[[t-1]]
+    m = nei_activated_perc %*% adopt[[t-1]] # m = p = percentage activated neighbors
+    q = m - tau_vec + 0.5
+    for (s in 1:length(list)){
+    L = 1/(1+exp((.5-q[s])*10)) #We just use M = 10 because that is was Macy does but this could be discussed
+    activation = rbinom(1,1,prob = L)
+    if (activation == 1) {
+      list[s] = TRUE}
+    else if (activation == 0) {  #If we remove this else if statement, maybe they cant turn of?
+      list[s] = FALSE}
+    }
+    adopt[[t]] <- list
+  }
+}
 
 if(condition == "high_node"){
     #making highnodes/influencers 
