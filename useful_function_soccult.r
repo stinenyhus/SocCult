@@ -8,7 +8,7 @@ generate_neumann <- function(n, p, nei){
 generate_scalefree <- function(n, degrees, gamma, p = 0){
   degs <- sample(1:degrees, n, replace=TRUE, prob=(1:degrees)^-gamma)
   if (sum(degs) %% 2 != 0) { degs[1] <- degs[1] + 1 } ### Note, that we correct the degree sequence if its sum is odd
-  degs <- degs * 2
+ # degs <- degs * 2
   scale_free <- sample_degseq(degs, method = "vl") 
   scale_free <- scale_free %>% rewire(each_edge(p = p)) #ska være meget lav
   return(scale_free)
