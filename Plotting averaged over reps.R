@@ -5,8 +5,39 @@ source("useful_function_soccult.r")
 library(pacman)
 p_load(tidyverse, network, igraph, intergraph, tidygraph, ggraph, ggplot2)
 
+
+#Baseline
+base_100_r01_neu <- contagion_sim(rep = 1, rounds = 50, tau = .25, n = 100, nei = 2, p = 0)
+base_100_r01_neu %>% 
+  group_by(round) %>% 
+  summarise(sum_adopt = sum(adopters)) %>%
+  ggplot(aes(x = round, y = sum_adopt)) + 
+  geom_line()
+
+#Baseline with 
+base_10000_r01_neu_rep10 <- contagion_sim(rep = 10, rounds = 50, tau = .25, n = 10000, nei = 2, p = 0.1)
+write.csv(base_10000_r01_neu_rep10, "base_10000_r01_neu_rep10.csv")
+
+#Baseline with 22500 - startet 17:03
+base_22500_r01_neu_rep10 <- contagion_sim(rep = 1, rounds = 50, tau = .25, n = 22500, nei = 2, p = 0.1)
+base_22500_r01_neu_rep10 %>% 
+  group_by(round) %>% 
+  summarise(sum_adopt = sum(adopters)) %>%
+  ggplot(aes(x = round, y = sum_adopt)) + 
+  geom_line()
+
+#Baseline with 22500 - startet 17:03
+base_22500_r01_neu_rep10_100rounds <- contagion_sim(rep = 1, rounds = 100, tau = .25, n = 22500, nei = 2, p = 0.1)
+base_22500_r01_neu_rep10_100rounds %>% 
+  group_by(round) %>% 
+  summarise(sum_adopt = sum(adopters)) %>%
+  ggplot(aes(x = round, y = sum_adopt)) + 
+  geom_line()
+
+
+
 #high status
-base_100_r01_neu_highstatus <- contagion_sim(high_node = T, rep = 1, rounds = 100, tau = .25, n = 100, nei = 2, p = 0.1)
+base_100_r01_neu_highstatus <- contagion_sim(high_node = T, rep = 1, rounds = 50, tau = .25, n = 100, nei = 2, p = 0.1)
 write.csv(base_100_r01_neu_highstatus, "base_100_r01_neu_highstatus.csv")
 
 base_100_r01_neu_highstatus %>% 
@@ -61,8 +92,11 @@ randomtau_100_r01_neu_stochastic %>%
 randomtau_100_r01_scalefree <- contagion_sim(tau_type = "scale_free", degrees = 50, gamma = 2.3, rep = 1, rounds = 100, tau = .25, n = 100, nei = 2, p = 0.1) 
 write.csv(randomtau_100_r01_scalefree, "randomtau_100_r01_scalefree")
 
-#100 reps 
+#100 reps baseline
 base_100_r01_neu_100rep <- contagion_sim(rep = 100, rounds = 100, tau = .25, n = 100, nei = 2, p = 0.1)
+
+#high status 22500 nodes- startet at 15:25
+base_22500_r01_neu_highstatus <- contagion_sim(high_node = T, rep = 1, rounds = 100, tau = .25, n = 22500, nei = 2, p = 0.1)
 
 
 #Averaging over rounds 

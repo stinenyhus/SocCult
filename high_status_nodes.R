@@ -1,15 +1,28 @@
 #Matrix multiplication
-# 
-# testmat <- matrix(0,nrow = 5, ncol = 5)
-# testmat[1,2] <- 1
-# testmat[1,5] <- 1
-# testmat[2,1] <- 1
-# testmat[2,4] <- 3
-# 
-# vec <- c(T,F,F,T,F)
 
+p_load(Matrix)
 pacman::p_load(igraph, intergraph)
 mtest <- make_lattice(c(150,150), nei = 2)
+
+sparse <- as.matrix(as_adjacency_matrix(mtest, type = "both", sparse = T))
+
+
+adj.perc <- sparse/rowSums(sparse)
+
+vec <- rep(T, 100)
+
+adopters <- adj.perc %*% vec
+sum(adopters)
+
+testmat <- matrix(0,nrow = 5, ncol = 5)
+testmat[1,2] <- 1
+testmat[1,5] <- 1
+testmat[2,1] <- 1
+testmat[2,4] <- 3
+
+vec <- c(T,F,F,T,F)
+
+
 mean(degree(mtest))
 mtest <- asNetwork(mtest)
 

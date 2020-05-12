@@ -1,8 +1,7 @@
 
 generate_neumann <- function(n, p, nei){
   neumann <-  make_lattice(c(sqrt(n),sqrt(n)), nei = nei) %>% 
-    rewire(each_edge(p = p)) %>% 
-    intergraph::asNetwork(.) 
+    rewire(each_edge(p = p)) 
   return(neumann)
 }
 
@@ -12,7 +11,6 @@ generate_scalefree <- function(n, degrees, gamma, p = 0){
   degs <- degs * 2
   scale_free <- sample_degseq(degs, method = "vl") 
   scale_free <- scale_free %>% rewire(each_edge(p = p)) #ska være meget lav
-  scale_free <- scale_free %>% asNetwork(.)
   return(scale_free)
 } 
 
@@ -21,9 +19,11 @@ contagion_sim <- function(tau_type = "base_tau", high_node = F, rep, net_type = 
     #generate network
     if(net_type == "neumann"){
       network <- generate_neumann(n, p, nei)
+      networknetwork <- asNetwork(network)
     }
     if(net_type == "scale_free"){
       network <- generate_scalefree(n, degrees, gamma, p)
+      networknetwork <- asNetwork(network)
       print(i)
     }
     #preparing first adopter list 
@@ -31,12 +31,12 @@ contagion_sim <- function(tau_type = "base_tau", high_node = F, rep, net_type = 
     # Choose a person at random
     initial_adopter <- base::sample(seq_len(n), size = 1) #takes one node from the sequence of nodes and classifies it as the inital 
     #adopter
-    initial_neighbors <- get.neighborhood(network, initial_adopter) #shows the 3 neighbors that the infected adopter has
+    initial_neighbors <- get.neighborhood(networknetwork, initial_adopter) #shows the 3 neighbors that the infected adopter has
     adopters[c(initial_adopter, initial_neighbors)] <- T #setting all neighbors to the initial infected node as infected
     print(tau_type)
     print(i)
     #preparing the matrix
-    adj <- network[, ]
+    adj <- as.matrix(as_adjacency_matrix(network, type = "both", sparse = T))
     diag(adj) <- 0 
     nei_activated_perc <- adj / rowSums(adj)
     if (high_node == T){
@@ -50,7 +50,7 @@ contagion_sim <- function(tau_type = "base_tau", high_node = F, rep, net_type = 
       #looping through all high stat nodes and asssigning new value to them
       for (n in high_status_nodes){
         node <- n
-        neighbors <- get.neighborhood(network, node)
+        neighbors <- get.neighborhood(networknetwork, node)
         nei_activated_perc[neighbors, node] <- tau #now all high nodes have tau as influence
       }
     }
