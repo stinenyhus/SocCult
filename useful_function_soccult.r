@@ -64,14 +64,12 @@ contagion_sim <- function(tau_type = "base_tau", high_node = F, rep, net_type = 
         adopt[[t]] <- ifelse(adopters, TRUE, ((nei_activated_perc %*% adopt[[t - 1]]) >= tau_vec)) 
         
         df <- data.frame(
-          tau_type = paste(tau_type),
-          round = t,
-          tau = tau_vec,
-          adopters = adopt[[t]],
-          id = 1:nrow(adj),
           network = i,
+          round = t,
+          adopters = sum(adopt[[t]]),
           high_node = high_node,
-          stochastic = paste(stochastic)
+          stochastic = paste(stochastic),
+          tau_type = paste(tau_type)
         )
         
         if (t == 2) {
@@ -81,14 +79,12 @@ contagion_sim <- function(tau_type = "base_tau", high_node = F, rep, net_type = 
         }
       }
       df_1 <- data.frame(
-        tau_type = paste(tau_type),
-        round = 1,
-        tau = tau_vec,
-        adopters = adopt[[1]],
-        id = 1:nrow(adj),
         network = i,
+        round = t,
+        adopters = sum(adopt[[t]]),
         high_node = high_node,
-        stochastic = paste(stochastic)
+        stochastic = paste(stochastic),
+        tau_type = paste(tau_type)
       )
       adopt_dat <- rbind(df_1, adopt_dat)
       if (i == 1){
@@ -104,14 +100,12 @@ contagion_sim <- function(tau_type = "base_tau", high_node = F, rep, net_type = 
         adopt[[t]] <- ifelse(adopters, TRUE, ((nei_activated_perc %*% adopt[[t - 1]]) >= tau_vec)) 
         
         df <- data.frame(
-          tau_type = paste(tau_type),
-          round = t,
-          tau = tau_vec,
-          adopters = adopt[[t]],
-          id = 1:nrow(adj),
           network = i,
+          round = t,
+          adopters = sum(adopt[[t]]),
           high_node = high_node,
-          stochastic = paste(stochastic)
+          stochastic = paste(stochastic),
+          tau_type = paste(tau_type)
         )
         if (t == 2) {
           adopt_dat <- df
@@ -120,14 +114,12 @@ contagion_sim <- function(tau_type = "base_tau", high_node = F, rep, net_type = 
         }
       }
       df_1 <- data.frame(
-        tau_type = paste(tau_type),
-        round = 1,
-        tau = tau_vec,
-        adopters = adopters,
-        id = 1:nrow(adj),
         network = i,
+        round = t,
+        adopters = sum(adopt[[t]]),
         high_node = high_node,
-        stochastic = paste(stochastic)
+        stochastic = paste(stochastic),
+        tau_type = paste(tau_type)
       )
       adopt_dat <- rbind(df_1, adopt_dat)
       if (i == 1){
@@ -159,14 +151,12 @@ contagion_sim <- function(tau_type = "base_tau", high_node = F, rep, net_type = 
         adopt[[t]] <- list
         
         df <- data.frame(
-          tau_type = paste(tau_type),
-          round = t,
-          tau = tau_vec,
-          adopters = adopt[[t]],
-          id = 1:nrow(adj),
           network = i,
+          round = t,
+          adopters = sum(adopt[[t]]),
           high_node = high_node,
-          stochastic = paste(stochastic)
+          stochastic = paste(stochastic),
+          tau_type = paste(tau_type)
         )
         if(t ==2){
           adopt_dat <- df
@@ -175,14 +165,12 @@ contagion_sim <- function(tau_type = "base_tau", high_node = F, rep, net_type = 
         }
       }
       df_1 <- data.frame(
-        tau_type = paste(tau_type),
-        round = 1,
-        tau = tau_vec,
-        adopters = adopt[[1]],
-        id = 1:nrow(adj),
         network = i,
+        round = t,
+        adopters = sum(adopt[[t]]),
         high_node = high_node,
-        stochastic = paste(stochastic)
+        stochastic = paste(stochastic),
+        tau_type = paste(tau_type)
       )
       adopt_dat <- rbind(df_1, adopt_dat)
       
