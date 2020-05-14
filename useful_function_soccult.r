@@ -80,8 +80,8 @@ contagion_sim <- function(tau_type = "base_tau", high_node = F, rep, net_type = 
       }
       df_1 <- data.frame(
         network = i,
-        round = t,
-        adopters = sum(adopt[[t]]),
+        round = 1,
+        adopters = sum(adopt[[1]]),
         high_node = high_node,
         stochastic = paste(stochastic),
         tau_type = paste(tau_type)
@@ -115,8 +115,8 @@ contagion_sim <- function(tau_type = "base_tau", high_node = F, rep, net_type = 
       }
       df_1 <- data.frame(
         network = i,
-        round = t,
-        adopters = sum(adopt[[t]]),
+        round = 1,
+        adopters = sum(adopt[[1]]),
         high_node = high_node,
         stochastic = paste(stochastic),
         tau_type = paste(tau_type)
@@ -166,8 +166,8 @@ contagion_sim <- function(tau_type = "base_tau", high_node = F, rep, net_type = 
       }
       df_1 <- data.frame(
         network = i,
-        round = t,
-        adopters = sum(adopt[[t]]),
+        round = 1,
+        adopters = sum(adopt[[1]]),
         high_node = high_node,
         stochastic = paste(stochastic),
         tau_type = paste(tau_type)
