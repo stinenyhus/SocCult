@@ -24,7 +24,6 @@ contagion_sim <- function(tau_type = "base_tau", high_node = F, rep, net_type = 
     if(net_type == "scale_free"){
       network <- generate_scalefree(n, degrees, gamma, p)
       networknetwork <- asNetwork(network)
-      print(i)
     }
     #preparing first adopter list 
     adopters <- rep(F, n)
@@ -33,7 +32,6 @@ contagion_sim <- function(tau_type = "base_tau", high_node = F, rep, net_type = 
     #adopter
     initial_neighbors <- get.neighborhood(networknetwork, initial_adopter) #shows the 3 neighbors that the infected adopter has
     adopters[c(initial_adopter, initial_neighbors)] <- T #setting all neighbors to the initial infected node as infected
-    print(tau_type)
     print(i)
     #preparing the matrix
     adj <- as.matrix(as_adjacency_matrix(network, type = "both", sparse = T))
@@ -48,8 +46,8 @@ contagion_sim <- function(tau_type = "base_tau", high_node = F, rep, net_type = 
       #defining highstat nodes
       high_status_nodes <- sample(seq_len(n), size = n_high)
       #looping through all high stat nodes and asssigning new value to them
-      for (n in high_status_nodes){
-        node <- n
+      for (b in high_status_nodes){
+        node <- b
         neighbors <- get.neighborhood(networknetwork, node)
         nei_activated_perc[neighbors, node] <- tau #now all high nodes have tau as influence
       }
@@ -137,15 +135,16 @@ contagion_sim <- function(tau_type = "base_tau", high_node = F, rep, net_type = 
         #They should only be pos so therefore sd = tau/3
       }
       for (t in 2:rounds){
+        print(t)
         list <- adopt[[t-1]]
-        m = nei_activated_perc %*% adopt[[t-1]] # m = p = percentage activated neighbors
+        m = nei_activated_perc %*% adopt[[t - 1]]
         q = m - tau_vec + 0.5
         for (s in 1:length(list)){
-          L = 1/(1+exp((.5-q[s])*10)) #We just use M = 10 because that is was Macy does but this could be discussed
+          L = 1/(1+exp((.5-q[s])*10)) 
           activation = rbinom(1,1,prob = L)
           if (activation == 1) {
             list[s] = TRUE}
-          else if (activation == 0) {  #If we remove this else if statement, maybe they cant turn of?
+          else if (activation == 0) {#If we remove this else if statement, maybe they cant turn of?
             list[s] = FALSE}
         }
         adopt[[t]] <- list
@@ -184,4 +183,13 @@ contagion_sim <- function(tau_type = "base_tau", high_node = F, rep, net_type = 
     
   }
   return(all_adopters)
+}
+
+plot_standard <- function(dataframe, title = "", x_name = "Rounds", y_name = "Number of activated nodes"){
+  data = group_by(dataframe, round) %>% summarise(n_adopter = mean(adopters))
+  plot <- ggplot(data, aes(round, n_adopter))+
+    geom_line()+
+    theme_classic()+
+    labs(title = title, x = x_name, y = y_name)
+  return(plot)
 }
