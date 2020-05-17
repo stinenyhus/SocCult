@@ -186,10 +186,46 @@ contagion_sim <- function(tau_type = "base_tau", high_node = F, rep, net_type = 
 }
 
 plot_standard <- function(dataframe, title = "", x_name = "Rounds", y_name = "Number of activated nodes"){
-  data = group_by(dataframe, round) %>% summarise(n_adopter = mean(adopters))
-  plot <- ggplot(data, aes(round, n_adopter))+
-    geom_line()+
-    theme_classic()+
+  data = dataframe
+  plot <- ggplot(data, aes(round, sumadopt))+
+    geom_line(color = "#339900", size = 1.2)+
+    scale_colour_pander() +
+    scale_fill_pander() +
+    theme_minimal()+
+    theme_pander()+
     labs(title = title, x = x_name, y = y_name)
   return(plot)
 }
+
+sum_data <- function(dataframe, name = ""){
+  summed_data <- dataframe %>% group_by(round) %>% summarise(sumadopt = mean(adopters),
+                                                             sd = sd(adopters),
+                                                             name = name)
+  return(summed_data)
+}
+
+
+calculate_point_estimates <- function(data){
+  name = data$name[1]
+  vec25 = data$sumadopt >= 22500 *0.25
+  round25 = which(vec25, T)[1]
+  change25 = (data$sumadopt[round25] - data$sumadopt[round25 - 1])/22500 * 100
+  vec50 = data$sumadopt >= 22500 *0.5
+  round50 = which(vec50, T)[1]
+  change50 = (data$sumadopt[round50] - data$sumadopt[round50 - 1])/22500 * 100
+  vec75 = data$sumadopt >= 22500 *0.75
+  round75 = which(vec75, T)[1]
+  change75 = (data$sumadopt[round75] - data$sumadopt[round75 - 1])/22500 * 100
+  all <- data.frame(
+    Name = paste(name),
+    Round_25_activation = paste(round25),
+    Change_in_percent = change25,
+    Round_50_activation = round50,
+    Change_in_percent = change50,
+    Round_75_activation = round75,
+    Change_in_percent = change75
+  )
+  return(all)
+}
+
+

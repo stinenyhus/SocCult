@@ -11,7 +11,7 @@ simulation1_plot <- plot_standard(simulation1_summed, title = "Simulation baseli
 ###Simulation 2 - heterogeneity of degree
 simulation2 <- read.csv("basetau_scalefree_rep100.csv")
 simulation2_summed <- sum_data(simulation2, name = "Heterogeneity of degree")
-simulation2_plot <- plot_standard(simulation2_summed, title = "Simulation in a scale-free network")
+simulation2_plot <- plot_standard(simulation2_summed, title = "Simulation in a scale-free network") 
 
 ###Simulation 3 - heterogeneity of thresholds
 simulation3 <- read.csv("randomtau_neu_rep100.csv")
@@ -52,6 +52,7 @@ all_simulations <- rbind(simulation1_summed, simulation2_summed, simulation3_sum
 
 ggplot(all_simulations, aes(round, sumadopt, color = name))+
   geom_line(size = 1.2)+
+  geom_ribbon(aes(ymin = (sumadopt - sd), ymax = (sumadopt + sd)), alpha = 0.05, linetype = 0)+
   scale_colour_pander()+
   theme_minimal()+
   theme(legend.title = element_blank())+
