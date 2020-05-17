@@ -34,7 +34,7 @@ simulation5_summed <- sum_data(simulation5, name = "Stochastic thresholds")
 simulation5_plot <- plot_standard(simulation5_summed, title = "Simulation with stochastic thresholds")
 
 ###Simulation 6 - Interaction between stochastic thresholds and heterogeneity of thresholds
-simulation6 <- read.csv("randomtau_neu_rep100_stochastic.csv")
+simulation6 <- read.csv("randomtau_neu_rep100_stochastic_25.csv")
 simulation6_summed <- sum_data(simulation6, name = "Int. stochastic thresholds & heterogeneity of thresholds")
 simulation6_plot <- plot_standard(simulation6_summed, title = "Simulation with both varying and stochastic thresholds")
 
@@ -48,7 +48,9 @@ simulation8 <- read.csv("basetau_neu_rep100_highstatus_stochastic.csv")
 simulation8_summed <- sum_data(simulation8, name = "Int. stochastic thresholds & heterogeneity of influence")
 simulation8_plot <- plot_standard(simulation6_summed, title = "Simulation with stochastic thresholds and  heterogeneity of influence")
 
-all_simulations <- rbind(simulation1_summed, simulation2_summed, simulation3_summed, simulation4_success_summed, simulation5_summed, simulation8_summed)
+all_simulations <- rbind(simulation1_summed, simulation2_summed, simulation3_summed, 
+                         simulation4_success_summed, simulation5_summed, 
+                         simulation6_summed, simulation7_summed, simulation8_summed)
 
 ggplot(all_simulations, aes(round, sumadopt, color = name))+
   geom_line(size = 1.2)+
@@ -63,6 +65,10 @@ ggplot(all_simulations, aes(round, sumadopt, color = name))+
   geom_hline(yintercept = 22500*0.75, linetype = 2, alpha = 0.7)+
    geom_text(aes(label ="75 % activation", x = 98, y = 17500),color = "Black", alpha = 0.01, size = 3) 
 
+all_simulations %>% filter(name == "Baseline network" | name == "Heterogeneity of degree") %>% 
+  ggplot(aes(round, sumadopt, color = name))+
+  geom_line()
 
+all_simulations %>% filter(name == "Baseline network" | name == "Heterogeneity of degree") %>% plot_standard()
 
-            
+plot_standard(all_simulations)
