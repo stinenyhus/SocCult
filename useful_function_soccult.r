@@ -187,12 +187,12 @@ contagion_sim <- function(tau_type = "base_tau", high_node = F, rep, net_type = 
 
 plot_standard <- function(dataframe, title = "", x_name = "Rounds", y_name = "Number of activated nodes"){
   data = dataframe
-  plot <- ggplot(data, aes(round, sumadopt))+
-    geom_line(color = "#339900", size = 1.2)+
+  plot <- ggplot(data, aes(round, sumadopt, color = name))+
+    geom_line(size = 1.2)+
     scale_colour_pander() +
     scale_fill_pander() +
     theme_minimal()+
-    theme_pander()+
+    theme(legend.title = element_blank())+
     labs(title = title, x = x_name, y = y_name)
   return(plot)
 }
