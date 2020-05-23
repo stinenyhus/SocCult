@@ -10,7 +10,7 @@ generate_scalefree <- function(n, degrees, gamma, p = 0){
   if (sum(degs) %% 2 != 0) { degs[1] <- degs[1] + 1 } ### Note, that we correct the degree sequence if its sum is odd
  # degs <- degs * 2
   scale_free <- sample_degseq(degs, method = "vl") 
-  scale_free <- scale_free %>% rewire(each_edge(p = p)) #ska være meget lav
+  scale_free <- scale_free %>% rewire(each_edge(p = p)) 
   return(scale_free)
 } 
 
@@ -32,6 +32,7 @@ contagion_sim <- function(tau_type = "base_tau", high_node = F, rep, net_type = 
     #adopter
     initial_neighbors <- get.neighborhood(networknetwork, initial_adopter) #shows the 3 neighbors that the infected adopter has
     adopters[c(initial_adopter, initial_neighbors)] <- T #setting all neighbors to the initial infected node as infected
+    print("rep")
     print(i)
     #preparing the matrix
     adj <- as.matrix(as_adjacency_matrix(network, type = "both", sparse = T))
@@ -140,7 +141,7 @@ contagion_sim <- function(tau_type = "base_tau", high_node = F, rep, net_type = 
         m = nei_activated_perc %*% adopt[[t - 1]]
         q = m - tau_vec + 0.5
         for (s in 1:length(list)){
-          L = 1/(1+exp((.5-q[s])*10)) 
+          L = 1/(1+exp((.5-q[s])*10))
           activation = rbinom(1,1,prob = L)
           if (activation == 1) {
             list[s] = TRUE}
@@ -185,45 +186,79 @@ contagion_sim <- function(tau_type = "base_tau", high_node = F, rep, net_type = 
   return(all_adopters)
 }
 
-plot_standard <- function(dataframe, title = "", x_name = "Rounds", y_name = "Number of activated nodes"){
-  data = dataframe
-  plot <- ggplot(data, aes(round, sumadopt, color = name))+
+plot_standard <- function(summed_dataframe, title = "",
+                          x_name = "Rounds", y_name = "Number of activated nodes"){
+  data = summed_dataframe
+  plot <- ggplot(data, aes(round, sumadopt, color = str_wrap(tau,20)))+
     geom_line(size = 1.2)+
+    geom_errorbar(aes(ymin=sumadopt-sd, ymax=sumadopt+sd), width=1, alpha = 0.5)+
     scale_colour_pander() +
     scale_fill_pander() +
     theme_minimal()+
-    theme(legend.title = element_blank())+
-    labs(title = title, x = x_name, y = y_name)
+    theme(text = element_text(size = 15, family = "serif"), legend.key.height = unit(1,"cm"))+
+    labs(title = title, x = x_name, y = y_name)+
+    geom_hline(yintercept = 22500*0.5, linetype = 2, alpha = 0.7)+
+    geom_text(aes(label ="50 %", x = 105, y = 12000), color = "Black", alpha = 0.01, size = 5, family = "serif")+
+    geom_hline(yintercept = 22500*0.25, linetype = 2, alpha = 0.7)+
+    geom_text(aes(label ="25 %", x = 105, y = 6300), color = "Black", alpha = 0.01, size = 5, family = "serif") +
+    geom_hline(yintercept = 22500*0.75, linetype = 2, alpha = 0.7)+
+    geom_text(aes(label ="75 %", x = 105, y = 17500),color = "Black", alpha = 0.01, size = 5, family = "serif") 
   return(plot)
 }
 
-sum_data <- function(dataframe, name = ""){
+plot_standard_by_name <- function(summed_dataframe, title = "",
+                                  x_name = "Rounds", y_name = "Number of activated nodes"){
+  data = summed_dataframe
+  plot <- ggplot(data, aes(round, sumadopt, color = str_wrap(name,20)))+
+    geom_line(size = 1.2)+
+    geom_errorbar(aes(ymin=sumadopt-sd, ymax=sumadopt+sd), width=1, alpha = 0.5)+
+    scale_colour_pander() +
+    scale_fill_pander() +
+    theme_minimal()+
+    theme(text = element_text(size = 15, family = "serif"), legend.key.height = unit(1,"cm"))+
+    labs(title = title, x = x_name, y = y_name)+
+    geom_hline(yintercept = 22500*0.5, linetype = 2, alpha = 0.7)+
+    geom_text(aes(label ="50 %", x = 105, y = 12000), color = "Black", alpha = 0.01, size = 5, family = "serif")+
+    geom_hline(yintercept = 22500*0.25, linetype = 2, alpha = 0.7)+
+    geom_text(aes(label ="25 %", x = 105, y = 6300), color = "Black", alpha = 0.01, size = 5, family = "serif") +
+    geom_hline(yintercept = 22500*0.75, linetype = 2, alpha = 0.7)+
+    geom_text(aes(label ="75 %", x = 105, y = 17500),color = "Black", alpha = 0.01, size = 5, family = "serif") 
+  return(plot)
+}
+
+
+sum_data <- function(dataframe, name = "", tau = ""){
   summed_data <- dataframe %>% group_by(round) %>% summarise(sumadopt = mean(adopters),
                                                              sd = sd(adopters),
-                                                             name = name)
+                                                             name = name,
+                                                             tau = tau)
   return(summed_data)
 }
 
 
-calculate_point_estimates <- function(data){
-  name = data$name[1]
-  vec25 = data$sumadopt >= 22500 *0.25
-  round25 = which(vec25, T)[1]
-  change25 = (data$sumadopt[round25] - data$sumadopt[round25 - 1])/22500 * 100
-  vec50 = data$sumadopt >= 22500 *0.5
-  round50 = which(vec50, T)[1]
-  change50 = (data$sumadopt[round50] - data$sumadopt[round50 - 1])/22500 * 100
-  vec75 = data$sumadopt >= 22500 *0.75
-  round75 = which(vec75, T)[1]
-  change75 = (data$sumadopt[round75] - data$sumadopt[round75 - 1])/22500 * 100
+calculate_point_estimates <- function(data, data_summed){
+  q25=filter(data, adopters >= 22500*0.25) %>% group_by(network) %>% summarise(minround = min(round))
+  q25_mean = round(mean(q25$minround),0)
+  q25_sd   = round(sd(q25$minround),2)
+  q50=filter(data, adopters >= 22500*0.50) %>% group_by(network) %>% summarise(minround = min(round))
+  q50_mean = round(mean(q50$minround),0)
+  q50_sd   = round(sd(q50$minround),2)
+  q75=filter(data, adopters >= 22500*0.75) %>% group_by(network) %>% summarise(minround = min(round))
+  q75_mean = round(mean(q75$minround),0)
+  q75_sd   = round(sd(q75$minround),2)
+  q99=filter(data, adopters >= 22500*0.99) %>% group_by(network) %>% summarise(minround = min(round))
+  q99_mean = round(mean(q99$minround),0)
+  q99_sd   = round(sd(q99$minround),2)
   all <- data.frame(
-    Name = paste(name),
-    Round_25_activation = paste(round25),
-    Change_in_percent = change25,
-    Round_50_activation = round50,
-    Change_in_percent = change50,
-    Round_75_activation = round75,
-    Change_in_percent = change75
+    name = data_summed$name[1],
+    mean_25 = q25_mean,
+    sd_25   = q25_sd,
+    mean_50 = q50_mean,
+    sd_50   = q50_sd,
+    mean_75 = q75_mean,
+    sd_75   = q75_sd,
+    mean_99 = q99_mean,
+    sd_99   = q99_sd,
   )
   return(all)
 }
