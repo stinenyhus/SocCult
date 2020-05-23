@@ -258,7 +258,7 @@ calculate_point_estimates <- function(data, data_summed){
     mean_75 = q75_mean,
     sd_75   = q75_sd,
     mean_99 = q99_mean,
-    sd_99   = q99_sd,
+    sd_99   = q99_sd
   )
   return(all)
 }
