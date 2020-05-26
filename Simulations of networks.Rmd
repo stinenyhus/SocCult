@@ -1,0 +1,85 @@
+---
+title: "Diffusion dynamics in complex contagions"
+author: "Astrid Rybner, Stine Larsen and Marie Mortensen"
+date: "5/26/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Simulation 0 - Baseline
+```{r}
+#tau = .25
+basetau_neu_rep100_tau_25 <- contagion_sim(n = 22500, rep = 100, rounds = 100, tau = .25, nei = 2, p = .1)
+#tau = .30
+basetau_neu_rep100_tau_30 <- contagion_sim(n = 22500, rep = 100, rounds = 100, tau = .30, nei = 2, p = .1)
+#tau = .35
+basetau_neu_rep100-tau_35 <- contagion_sim(n = 22500, rep = 100, rounds = 100, tau = .35, nei = 2, p = .1)
+#tau = .40
+basetau_neu_rep100_tau_40 <- contagion_sim(n = 22500, rep = 100, rounds = 100, tau = .40, nei = 2, p = .1)
+```
+
+Simulation 1 - Heterogeneity of thresholds
+```{r}
+#tau = .25
+randomtau_neu_rep100_tau_25 <- contagion_sim(tau_type = "random_tau", n = 22500, rep = 100, rounds = 100, tau = .25, nei = 2, p = .1)
+#tau = .30
+randomtau_neu_rep100_tau_30 <- contagion_sim(tau_type = "random_tau", n = 22500, rep = 100, rounds = 100, tau = .30, nei = 2, p = .1)
+#tau = .35
+randomtau_neu_rep100_tau_35 <- contagion_sim(tau_type = "random_tau", n = 22500, rep = 100, rounds = 100, tau = .35, nei = 2, p = .1)
+#tau = .40
+randomtau_neu_rep100_tau_40 <- contagion_sim(tau_type = "random_tau", n = 22500, rep = 100, rounds = 100, tau = .40, nei = 2, p = .1)
+```
+
+Simulation 2 - Stochastic thresholds
+```{r}
+#tau = .25
+basetau_neu_rep100_stochastic_25 <- contagion_sim(rep = 100, rounds = 100, tau = .25, n = 22500, nei = 2, p = 0.1, stochastic = T)
+#tau = .30
+basetau_neu_rep100_stochastic_30 <- contagion_sim(rep = 100, rounds = 100, tau = .30, n = 22500, nei = 2, p = 0.1, stochastic = T)
+#tau = .35
+basetau_neu_rep100_stochastic_35 <- contagion_sim(rep = 100, rounds = 100, tau = .35, n = 22500, nei = 2, p = 0.1, stochastic = T)
+#tau = .40
+basetau_neu_rep100_stochastic_40 <- contagion_sim(rep = 100, rounds = 100, tau = .40, n = 22500, nei = 2, p = 0.1, stochastic = T)
+```
+
+Simulation 3 - Heterogeneity of influence
+```{r}
+basetau_neu_rep100_highstatus <- contagion_sim(rep = 100, rounds = 100, tau = .25, n = 22500, nei = 2, p = 0.1, high_node = T)
+```
+
+Simulation 4 - Heterogeneity of degree
+```{r}
+#tau = .25
+basetau_scalefree_rep100 <- contagion_sim(net_type = "scale_free", rep = 100, rounds = 100, tau = .25, n = 22500, p = 0, degrees = 130, gamma = 2.3)
+```
+
+Simulation 5 - Stochastic and heterogeneous thresholds
+```{r}
+#tau = .25
+random_tau_neu_rep100_stochastic_tau_25 <- contagion_sim(tau_type = "random_tau", rep = 100, rounds = 100, tau = .25, n = 22500, nei = 2, p = 0.1, stochastic = T)
+
+#tau = .30
+random_tau_neu_rep100_stochastic_tau_30 <- contagion_sim(tau_type = "random_tau", rep = 100, rounds = 100, tau = .30, n = 22500, nei = 2, p = 0.1, stochastic = T)
+
+#tau = .35
+random_tau_neu_rep100_stochastic_tau_35 <- contagion_sim(tau_type = "random_tau", rep = 100, rounds = 100, tau = .35, n = 22500, nei = 2, p = 0.1, stochastic = T)
+
+#tau = .40
+random_tau_neu_rep100_stochastic_tau_40 <- contagion_sim(tau_type = "random_tau", rep = 100, rounds = 100, tau = .35, n = 22500, nei = 2, p = 0.1, stochastic = T)
+```
+
+Simulation 6 - Heterogeneity of thresholds and influence
+```{r}
+#tau = .25
+randomtau_neu_rep100_highstatus <- contagion_sim(tau_type = "random_tau", rep = 100, rounds = 100, tau = .25, n = 22500, nei = 2, p = 0.1, high_node = T)
+```
+
+Simulation 7 - Heterogeneity of thresholds and degree
+```{r}
+#tau = .25
+randomtau_scalefree_rep100_tau_25 <- contagion_sim(tau_type = "random_tau", net_type = "scale_free", rep = 100, rounds = 100, tau = .25, n = 22500, p = 0, degrees = 130, gamma = 2.3)
+```
+
